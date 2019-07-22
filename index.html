@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Currency Converter</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker3.css"/>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <style>
+        .form-group{
+            padding: 10px;
+        }
+        .row{
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="bootstrap-iso">
+    <div class="container-fluid">
+        <div class="widget">
+            <h1>Currency Converter</h1>
+            <div id="currency_form" class="row">
+                <form class="form-inline">
+                    <div class="col-md-6 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Date</label>
+                            <input class="form-control datepicker" id="date" name="date" placeholder="YYYY-MM-DD" type="text"/>
+                        </div>
+                        <div class="form-group" id="currency_input">
+                            <label class="control-label">Amount</label>
+                            <input id="original_amount" name="original_amount" class="form-control" type="number" placeholder="Amount" >
+                            <select id="original_currency" name="original_currency" class="form-control" type="text" >
+                            </select>
+                            <label class="control-label">to</label>
+                            <select id="converted_currency" name="converted_currency" class="form-control" type="text" >
+                            </select>
+                        </div>
+
+                    </div>
+                </form>
+
+            </div>
+            <div class="row">
+                <h3 id="result"></h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('.datepicker').datepicker({
+            format: 'yyyy-mm-dd',
+            onSelect: function(d,i){
+                if(d !== i.lastVal){
+                    $(this).change();
+                }
+            }
+        })
+        $('#date').datepicker('setDate', 'today');
+    })
+    async function getRates(date) {
+        const URL = 'https://api.exchangeratesapi.io/'+date;
+        try {
+            const fetchResult = fetch(URL)
+            const response = await fetchResult;
+            const jsonData = await response.json();
+            if (jsonData.error){
+                alert(jsonData.error);
+            }
+            populateCurrency(jsonData.rates, jsonData.base);
+            calculate();
+        } catch(e){
+            throw Error(e);
+        }
+    }
+    function populateCurrency(rates, base){
+        var original_currency = $('#original_currency option:selected').text();
+        var converted_currency = $('#converted_currency option:selected').text();
+        var o = $('#original_currency').empty();
+        var c = $('#converted_currency').empty();
+        $('<option />', {value: 1, text: base}).appendTo(o);
+        $('<option />', {value: 1, text: base}).appendTo(c);
+        for (rate in rates) {
+            $('<option />', {value: rates[rate], text: rate}).appendTo(o);
+            $('<option />', {value: rates[rate], text: rate}).appendTo(c);
+        }
+        if (original_currency !== '') {
+            $("#original_currency option:contains(" + original_currency + ")").attr('selected', 'selected');
+        }
+        if (converted_currency !== '') {
+            $("#converted_currency option:contains(" + converted_currency + ")").attr('selected', 'selected');
+        }
+    }
+    function calculate(){
+        var amount = $('#original_amount').val();
+        var original = $('#original_currency').val();
+        var converted = $('#converted_currency').val();
+        var original_currency = $('#original_currency option:selected').text();
+        var converted_currency = $('#converted_currency option:selected').text();
+        
+        if ($('#original_amount').val() !== '' && $('#original_amount').val() !== null && typeof $('#original_amount').val() !== "undefined") {
+            $('#result').text('Result: ' + amount + ' ' + original_currency + ' = ' + (amount / original * converted).toFixed(2) + ' ' + converted_currency);
+        }
+    }
+    $('#date').change(function(){
+        getRates($(this).val());
+    });
+    $( "#calculate" ).click(function() {
+        calculate();
+    });
+    $('#original_amount').on('keyup keypress blur change', function(e) {
+        calculate();
+    });
+    $( "#original_currency" ).change(function() {
+        calculate();
+    });
+    $( "#converted_currency" ).change(function() {
+        calculate();
+    });
+</script>
+
+</body>
+
+</html>
+
