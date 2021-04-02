@@ -83,10 +83,10 @@
         }
     }
     function populateCurrency(rates, base){
-        var original_currency = $('#original_currency option:selected').text();
-        var converted_currency = $('#converted_currency option:selected').text();
-        var o = $('#original_currency').empty();
-        var c = $('#converted_currency').empty();
+        const original_currency = $('#original_currency option:selected').text();
+        const converted_currency = $('#converted_currency option:selected').text();
+        const o = $('#original_currency').empty();
+        const c = $('#converted_currency').empty();
         $('<option />', {value: 1, text: base}).appendTo(o);
         $('<option />', {value: 1, text: base}).appendTo(c);
         for (rate in rates) {
@@ -101,11 +101,11 @@
         }
     }
     function calculate(){
-        var amount = $('#original_amount').val();
-        var original = $('#original_currency').val();
-        var converted = $('#converted_currency').val();
-        var original_currency = $('#original_currency option:selected').text();
-        var converted_currency = $('#converted_currency option:selected').text();
+        const amount = $('#original_amount').val();
+        const original = $('#original_currency').val();
+        const converted = $('#converted_currency').val();
+        const original_currency = $('#original_currency option:selected').text();
+        const converted_currency = $('#converted_currency option:selected').text();
         
         if ($('#original_amount').val() !== '' && $('#original_amount').val() !== null && typeof $('#original_amount').val() !== "undefined") {
             $('#result').text('Result: ' + amount + ' ' + original_currency + ' = ' + (amount / original * converted).toFixed(2) + ' ' + converted_currency);
